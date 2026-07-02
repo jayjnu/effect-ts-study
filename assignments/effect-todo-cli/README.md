@@ -21,6 +21,7 @@ todo import ./todos.txt
 - `Context.Tag` / `Layer` 기반 DI
 - `@effect/platform` 기반 platform agnostic code
 - `@effect/platform-node` entrypoint 분리
+- ESLint로 `domain <- services <- programs/layers` 의존성 방향 강제
 - typed error, `Schema`, `Config`, `Clock`, `Schedule`, `Scope`
 
 ## 프로젝트 세팅 방법
@@ -55,6 +56,7 @@ placeholder command는 바로 실행해볼 수 있다.
 
 ```bash
 pnpm typecheck
+pnpm lint
 pnpm todo --help
 pnpm todo add "Effect 공부하기"
 pnpm todo list
@@ -63,6 +65,7 @@ pnpm todo import ./todos.txt
 ```
 
 실제 Todo business logic, repository 구현은 과제 수행자가 직접 작성한다.
+레이어별 책임과 각 위치에서 필요한 Effect 종류는 [Spec](./docs/spec.md)의 `Layer responsibilities`를 참고한다.
 
 ## Docs
 
