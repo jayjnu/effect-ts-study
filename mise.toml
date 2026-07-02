@@ -1,0 +1,19 @@
+[tools]
+node = "22.22.3"
+"aqua:pnpm/pnpm" = "10.8.1"
+
+[tasks.install]
+description = "Install workspace dependencies"
+run = "pnpm install"
+
+[tasks.lint]
+description = "Run workspace lint"
+run = "pnpm lint"
+
+[tasks.typecheck]
+description = "Run workspace typecheck"
+run = "pnpm typecheck"
+
+[tasks.todo-help]
+description = "Show effect-todo-cli help"
+run = "pnpm --filter effect-todo-cli todo --help"

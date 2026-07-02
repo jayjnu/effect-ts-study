@@ -26,11 +26,11 @@ todo import ./todos.txt
 
 ## 프로젝트 세팅 방법
 
-이미 pnpm 패키지 scaffold가 생성되어 있다.
+repo는 pnpm workspace로 구성되어 있다. 루트에서 의존성을 설치한다.
 
 ```bash
-cd assignments/effect-todo-cli
 pnpm install
+cd assignments/effect-todo-cli
 ```
 
 현재는 TypeScript 에러가 나지 않는 최소 entrypoint, `src/cli` command interface, 디렉토리 구조만 남겨둔다.
@@ -66,6 +66,7 @@ pnpm todo import ./todos.txt
 
 실제 Todo business logic, repository 구현은 과제 수행자가 직접 작성한다.
 레이어별 책임과 각 위치에서 필요한 Effect 종류는 [Spec](./docs/spec.md)의 `Layer responsibilities`를 참고한다.
+ESLint architecture rule은 workspace package `eslint-config-effect`에서 재사용한다.
 
 ## Docs
 

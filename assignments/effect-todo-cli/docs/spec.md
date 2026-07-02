@@ -66,7 +66,7 @@ CLI는 `src/cli/*`에서 args를 parse하고 program 결과를 출력 형태로 
 - command/program/business logic은 출력 side effect를 직접 수행하지 않고 renderable value를 반환한다.
 - 실제 출력은 `main.ts` 또는 CLI adapter에서만 Effect Console/logging으로 처리한다.
 
-ESLint로 가능한 정적 제약은 강제한다: layer 역방향 import, `@effect/platform-node`의 `main.ts` 밖 사용, Node builtin import, `process`, `Date`/`Date.now()`, `Math.random()`, `crypto.randomUUID()`, business layer의 출력 side effect. typed error 매핑처럼 런타임 의미가 필요한 규칙은 구현/리뷰로 확인한다.
+ESLint로 가능한 정적 제약은 workspace package `eslint-config-effect`에서 강제한다: layer 역방향 import, `@effect/platform-node`의 `main.ts` 밖 사용, `@effect/platform`의 `layers` 밖 사용, Node builtin import, `process`, `Date`/`Date.now()`, `Math.random()`, `crypto.randomUUID()`, business layer의 출력 side effect. typed error 매핑처럼 런타임 의미가 필요한 규칙은 구현/리뷰로 확인한다.
 
 ### Error model
 

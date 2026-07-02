@@ -13,17 +13,16 @@
     "node": "^20.19.0 || ^22.13.0 || >=24"
   },
   "dependencies": {
-    "@effect/cli": "^0.75.2",
-    "@effect/platform": "^0.96.2",
-    "@effect/platform-node": "^0.107.0",
-    "effect": "^3.21.4"
+    "@effect/cli": "catalog:",
+    "@effect/platform": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "effect": "catalog:"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@types/node": "^26.1.0",
-    "eslint": "^10.6.0",
-    "tsx": "^4.22.4",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.62.1"
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-effect": "workspace:*",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
   }
 }

@@ -1,0 +1,9 @@
+{
+  "name": "effect-ts-study",
+  "private": true,
+  "packageManager": "pnpm@10.8.1",
+  "scripts": {
+    "lint": "pnpm --filter effect-todo-cli lint",
+    "typecheck": "pnpm --filter effect-todo-cli typecheck"
+  }
+}
