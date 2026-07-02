@@ -14,6 +14,10 @@ run = "pnpm lint"
 description = "Run workspace typecheck"
 run = "pnpm typecheck"
 
+[tasks.test]
+description = "Run workspace tests"
+run = "pnpm test"
+
 [tasks.todo-help]
 description = "Show effect-todo-cli help"
 run = "pnpm --filter effect-todo-cli todo --help"

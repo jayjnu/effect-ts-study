@@ -6,7 +6,8 @@
   "scripts": {
     "todo": "tsx src/main.ts",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src"
+    "lint": "eslint src test",
+    "test": "vitest run"
   },
   "packageManager": "pnpm@10.8.1",
   "engines": {
@@ -19,10 +20,12 @@
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
     "eslint": "catalog:",
     "eslint-config-effect": "workspace:*",
     "tsx": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
