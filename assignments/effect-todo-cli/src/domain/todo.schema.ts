@@ -1,6 +1,8 @@
-import {Date, filter, Literal, maxLength, minLength, nonEmptyString, String, Struct} from 'effect/Schema';
+import {Date, filter, Literal, maxLength, minLength, nonEmptyString, String, Struct, UUID} from 'effect/Schema';
 
-const TodoState = Literal('todo', 'in-progress', 'done');
+export const TodoId = UUID;
+export const TodoState = Literal('todo', 'in-progress', 'done');
+export const TodoStateLiterals = TodoState.literals;
 const TodoTitle = String.pipe(
     nonEmptyString(),
     minLength(4),
@@ -8,6 +10,7 @@ const TodoTitle = String.pipe(
 );
 
 export const TodoSchema = Struct({
+    id: TodoId,
     state: TodoState,
     title: TodoTitle,
     createdAt: Date,

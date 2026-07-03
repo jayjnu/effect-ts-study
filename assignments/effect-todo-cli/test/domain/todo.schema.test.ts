@@ -8,10 +8,12 @@ describe("TodoSchema", () => {
   const decodeTodo = Schema.decodeUnknownEither(TodoSchema)
 
   it("accepts a valid todo", () => {
+    const id = "123e4567-e89b-12d3-a456-426614174000"
     const createdAt = "2026-07-03T00:00:00.000Z"
     const updatedAt = "2026-07-03T01:00:00.000Z"
 
     const result = decodeTodo({
+      id,
       state: "todo",
       title: "Write tests",
       createdAt,
@@ -21,6 +23,7 @@ describe("TodoSchema", () => {
     expect(Either.isRight(result)).toBe(true)
     if (Either.isRight(result)) {
       expect(result.right).toEqual({
+        id,
         state: "todo",
         title: "Write tests",
         createdAt: new Date(createdAt),
@@ -31,6 +34,7 @@ describe("TodoSchema", () => {
 
   it("rejects titles shorter than 4 characters", () => {
     const result = decodeTodo({
+      id: "123e4567-e89b-12d3-a456-426614174000",
       state: "todo",
       title: "abc",
       createdAt: "2026-07-03T00:00:00.000Z",
@@ -42,6 +46,7 @@ describe("TodoSchema", () => {
 
   it("rejects unknown todo states", () => {
     const result = decodeTodo({
+      id: "123e4567-e89b-12d3-a456-426614174000",
       state: "blocked",
       title: "Write tests",
       createdAt: "2026-07-03T00:00:00.000Z",
@@ -53,9 +58,22 @@ describe("TodoSchema", () => {
 
   it("rejects todos whose updatedAt is not later than createdAt", () => {
     const result = decodeTodo({
+      id: "123e4567-e89b-12d3-a456-426614174000",
       state: "todo",
       title: "Write tests",
       createdAt: "2026-07-03T01:00:00.000Z",
+      updatedAt: "2026-07-03T01:00:00.000Z"
+    })
+
+    expect(Either.isLeft(result)).toBe(true)
+  })
+
+  it("rejects malformed todo ids", () => {
+    const result = decodeTodo({
+      id: "not-a-uuid",
+      state: "todo",
+      title: "Write tests",
+      createdAt: "2026-07-03T00:00:00.000Z",
       updatedAt: "2026-07-03T01:00:00.000Z"
     })
 
