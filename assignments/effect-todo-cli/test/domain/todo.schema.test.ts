@@ -56,13 +56,25 @@ describe("TodoSchema", () => {
     expect(Either.isLeft(result)).toBe(true)
   })
 
-  it("rejects todos whose updatedAt is not later than createdAt", () => {
+  it("accepts todos whose updatedAt is equal to createdAt", () => {
     const result = decodeTodo({
       id: "123e4567-e89b-12d3-a456-426614174000",
       state: "todo",
       title: "Write tests",
       createdAt: "2026-07-03T01:00:00.000Z",
       updatedAt: "2026-07-03T01:00:00.000Z"
+    })
+
+    expect(Either.isRight(result)).toBe(true)
+  })
+
+  it("rejects todos whose updatedAt is earlier than createdAt", () => {
+    const result = decodeTodo({
+      id: "123e4567-e89b-12d3-a456-426614174000",
+      state: "todo",
+      title: "Write tests",
+      createdAt: "2026-07-03T01:00:00.000Z",
+      updatedAt: "2026-07-03T00:00:00.000Z"
     })
 
     expect(Either.isLeft(result)).toBe(true)

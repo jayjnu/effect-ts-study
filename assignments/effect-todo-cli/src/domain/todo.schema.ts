@@ -17,8 +17,8 @@ export const TodoSchema = Struct({
     createdAt: Date,
     updatedAt: Date,
 }).pipe(filter((todo) => {
-    if (todo.updatedAt.getTime() <= todo.createdAt.getTime()) {
-        return 'updatedAt must be later than createdAt'
+    if (todo.updatedAt.getTime() < todo.createdAt.getTime()) {
+        return 'updatedAt cannot be earlier than createdAt'
     }
 }));
 
