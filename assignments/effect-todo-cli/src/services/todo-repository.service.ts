@@ -6,7 +6,7 @@ export class StorageError extends Data.TaggedError('StorageError')<{
   readonly message?: string;
 }> {}
 
-type FindTodoById = (id: TodoId) => Effect.Effect<Todo, StorageError>;
+type FindTodoById = (id: TodoId) => Effect.Effect<Option.Option<Todo>, StorageError>;
 type ListTodos = Effect.Effect<ReadonlyArray<Todo>, StorageError>;
 type UpsertMany = (...todos: ReadonlyArray<Todo>) => Effect.Effect<void, StorageError>;
 
