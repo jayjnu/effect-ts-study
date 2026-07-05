@@ -47,6 +47,28 @@ const toTodoTable = (...todos: ReadonlyArray<Todo>) => ({
   ids: todos.map((todo) => todo.id),
 })
 
+const ensureDataFile = (fs: FileSystem, dataPath: string) =>
+  Effect.gen(function* () {
+    const exists = yield* fs.exists(dataPath).pipe(
+      Effect.mapError(mapReadError)
+    )
+
+    if (!exists) {
+      yield* fs.writeFileString(
+        dataPath,
+        JSON.stringify(toTodoTable())
+      ).pipe(
+        Effect.mapError(
+          (err) =>
+            new StorageError({
+              reason: "write",
+              message: err.message,
+            })
+        )
+      )
+    }
+  })
+
 const writeTodos = (
   fs: FileSystem,
   dataPath: string,
@@ -81,6 +103,7 @@ export const FileSystemTodoRepository = Layer.effect(
   Effect.gen(function* () {
     const config = yield* FileSystemTodoRepositoryConfig
     const fs = yield* FileSystem
+    yield* ensureDataFile(fs, config.dataPath)
 
     const list = readTodos(fs, config.dataPath);
     const findById = (id: TodoId) => Effect.gen(function*() {

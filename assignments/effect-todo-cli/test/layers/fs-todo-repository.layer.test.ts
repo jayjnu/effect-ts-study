@@ -51,6 +51,29 @@ it.scoped("lists todos persisted in the backing file", () =>
   }).pipe(Effect.provide(NodeContext.layer))
 )
 
+it.scoped("creates the backing file when the repository is initialized for the first time", () =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem
+    const dir = yield* fs.makeTempDirectoryScoped()
+    const dataPath = `${dir}/todos.json`
+
+    const todos = yield* Effect.gen(function* () {
+      const repo = yield* TodoRepository
+      return yield* repo.list
+    }).pipe(
+      Effect.provide(FileSystemTodoRepository),
+      Effect.provideService(FileSystemTodoRepositoryConfig, { dataPath })
+    )
+
+    expect(todos).toEqual([])
+
+    const rawTable = yield* fs.readFileString(dataPath)
+    expect(JSON.parse(rawTable)).toEqual(
+      JSON.parse(JSON.stringify(makePersistedTable()))
+    )
+  }).pipe(Effect.provide(NodeContext.layer))
+)
+
 it.scoped("upsertMany updates an existing todo and appends a new todo", () =>
   Effect.gen(function* () {
     const fs = yield* FileSystem
