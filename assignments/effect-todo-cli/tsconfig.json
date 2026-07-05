@@ -1,6 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2022",
+    "plugins": [
+      {
+        "name": "@effect/language-service"
+      }
+    ],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "exactOptionalPropertyTypes": true,
