@@ -5,8 +5,9 @@ import {
   TodoAlreadyCompletedError,
 } from "./todo.error"
 import { type CreateTodo, type Todo, type TodoId } from "./todo.schema"
+import { DateTime } from "effect"
 
-export function createTodo(input: CreateTodo, id: TodoId, now: Date): Todo {
+export function createTodo(input: CreateTodo, id: TodoId, now: DateTime.Utc): Todo {
   return {
     id,
     state: "todo",
@@ -18,7 +19,7 @@ export function createTodo(input: CreateTodo, id: TodoId, now: Date): Todo {
 
 export function markTodoDone(
   todo: Todo,
-  now: Date
+  now: DateTime.Utc
 ): Either.Either<Todo, TodoAlreadyCompletedError> {
   if (todo.state === "done") {
     return Either.left(new TodoAlreadyCompletedError({ id: todo.id }))
@@ -33,7 +34,7 @@ export function markTodoDone(
 
 export function startTodo(
   todo: Todo,
-  now: Date
+  now: DateTime.Utc
 ): Either.Either<Todo, InvalidTodoStateTransitionError> {
   if (todo.state === "done") {
     return Either.left(
@@ -53,7 +54,7 @@ export function startTodo(
 
 export function reopenTodo(
   todo: Todo,
-  now: Date
+  now: DateTime.Utc
 ): Either.Either<Todo, InvalidTodoStateTransitionError> {
   if (todo.state !== "done") {
     return Either.left(
@@ -74,7 +75,7 @@ export function reopenTodo(
 export function renameTodo(
   todo: Todo,
   title: CreateTodo["title"],
-  now: Date
+  now: DateTime.Utc
 ): Todo {
   return {
     ...todo,

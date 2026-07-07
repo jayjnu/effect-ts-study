@@ -1,7 +1,7 @@
 import { NodeContext } from "@effect/platform-node"
 import { FileSystem } from "@effect/platform/FileSystem"
 import { expect, it } from "@effect/vitest"
-import { Effect, Option } from "effect"
+import { DateTime, Effect, Option } from "effect"
 
 import type { Todo } from "../../src/domain/todo.schema"
 import { FileSystemTodoRepository, FileSystemTodoRepositoryConfig } from "../../src/layers/fs-todo-repository.layer"
@@ -16,16 +16,16 @@ const firstTodo = {
   id: "123e4567-e89b-12d3-a456-426614174000",
   state: "todo" as const,
   title: "Write fs repo test",
-  createdAt: new Date("2026-07-05T00:00:00.000Z"),
-  updatedAt: new Date("2026-07-05T00:00:00.000Z"),
+  createdAt: DateTime.unsafeMake("2026-07-05T00:00:00.000Z"),
+  updatedAt: DateTime.unsafeMake("2026-07-05T00:00:00.000Z"),
 }
 
 const secondTodo = {
   id: "123e4567-e89b-12d3-a456-426614174001",
   state: "done" as const,
   title: "Ship fs repo test",
-  createdAt: new Date("2026-07-05T01:00:00.000Z"),
-  updatedAt: new Date("2026-07-05T02:00:00.000Z"),
+  createdAt: DateTime.unsafeMake("2026-07-05T01:00:00.000Z"),
+  updatedAt: DateTime.unsafeMake("2026-07-05T02:00:00.000Z"),
 }
 
 it.scoped("lists todos persisted in the backing file", () =>
@@ -88,15 +88,15 @@ it.scoped("upsertMany updates an existing todo and appends a new todo", () =>
     const updatedFirstTodo = {
       ...firstTodo,
       state: "done" as const,
-      updatedAt: new Date("2026-07-05T03:00:00.000Z"),
+      updatedAt: DateTime.unsafeMake("2026-07-05T03:00:00.000Z"),
     }
 
     const thirdTodo = {
       id: "123e4567-e89b-12d3-a456-426614174002",
       state: "todo" as const,
       title: "Review todos",
-      createdAt: new Date("2026-07-05T04:00:00.000Z"),
-      updatedAt: new Date("2026-07-05T04:00:00.000Z"),
+      createdAt: DateTime.unsafeMake("2026-07-05T04:00:00.000Z"),
+      updatedAt: DateTime.unsafeMake("2026-07-05T04:00:00.000Z"),
     }
 
     const persistedTodos = yield* Effect.gen(function* () {

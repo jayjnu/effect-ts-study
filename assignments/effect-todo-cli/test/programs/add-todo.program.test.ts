@@ -1,5 +1,5 @@
 import { expect, it } from "@effect/vitest"
-import { Effect, TestClock } from "effect"
+import { DateTime, Effect, TestClock } from "effect"
 
 import { addTodo } from "../../src/programs/add-todo.program"
 import { IdGenerator } from "../../src/services/id-generator.service"
@@ -32,8 +32,8 @@ it.effect("creates a todo from input and persists it", () =>
       id: generatedId,
       state: "todo",
       title: "Write program tests",
-      createdAt: new Date(createdAt),
-      updatedAt: new Date(createdAt),
+      createdAt: DateTime.unsafeMake(createdAt),
+      updatedAt: DateTime.unsafeMake(createdAt),
     })
     expect(persistedTodos).toEqual([todo])
   })

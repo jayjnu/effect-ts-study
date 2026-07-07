@@ -1,4 +1,5 @@
-import {Date, filter, Literal, maxLength, minLength, nonEmptyString, String, Struct, Schema, UUID} from 'effect/Schema';
+import { DateTime } from 'effect';
+import {filter, Literal, maxLength, minLength, nonEmptyString, String, Struct, Schema, UUID, DateTimeUtc} from 'effect/Schema';
 
 export const TodoId = UUID;
 export type TodoId = Schema.Type<typeof TodoId>;
@@ -14,10 +15,10 @@ export const TodoSchema = Struct({
     id: TodoId,
     state: TodoState,
     title: TodoTitle,
-    createdAt: Date,
-    updatedAt: Date,
+    createdAt: DateTimeUtc,
+    updatedAt: DateTimeUtc,
 }).pipe(filter((todo) => {
-    if (todo.updatedAt.getTime() < todo.createdAt.getTime()) {
+    if (DateTime.lessThan(todo.updatedAt, todo.createdAt)) {
         return 'updatedAt cannot be earlier than createdAt'
     }
 }));

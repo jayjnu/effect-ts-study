@@ -3,6 +3,7 @@ import * as Either from "effect/Either"
 import * as Schema from "effect/Schema"
 
 import { TodoSchema } from "../../src/domain/todo.schema"
+import { DateTime } from "effect"
 
 describe("TodoSchema", () => {
   const decodeTodo = Schema.decodeUnknownEither(TodoSchema)
@@ -26,8 +27,8 @@ describe("TodoSchema", () => {
         id,
         state: "todo",
         title: "Write tests",
-        createdAt: new Date(createdAt),
-        updatedAt: new Date(updatedAt)
+        createdAt: DateTime.unsafeMake(createdAt),
+        updatedAt: DateTime.unsafeMake(updatedAt),
       })
     }
   })

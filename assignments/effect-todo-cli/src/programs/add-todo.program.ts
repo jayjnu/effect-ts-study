@@ -1,4 +1,4 @@
-import { Clock, Effect } from "effect";
+import { Clock, DateTime, Effect } from "effect";
 import { TodoRepository } from "../services/todo-repository.service";
 import { CreateTodo } from "../domain/todo.schema";
 import { createTodo } from "../domain/todo.model";
@@ -8,8 +8,8 @@ export const addTodo = (todoInit: CreateTodo) => Effect.gen(function*() {
     const todoRepo = yield* TodoRepository;
     const idGen = yield* IdGenerator;
     const todoId = yield* idGen.nextId;
-    const now = yield* Clock.currentTimeMillis;
-    const todo = createTodo(todoInit, todoId, new Date(now));
+    const now = DateTime.unsafeMake(yield* Clock.currentTimeMillis);
+    const todo = createTodo(todoInit, todoId, now);
 
     yield* todoRepo.upsertMany(todo);
 
