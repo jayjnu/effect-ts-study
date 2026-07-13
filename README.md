@@ -17,3 +17,4 @@ mise run typecheck
 ## 과제
 
 - [Effect Todo CLI 손코딩 과제](./assignments/effect-todo-cli/README.md)
+- [Effect Todo HTTP/RPC Server 과제](./assignments/effect-todo-server/README.md)
