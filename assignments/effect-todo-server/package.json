@@ -15,8 +15,11 @@
     "node": "^20.19.0 || ^22.13.0 || >=24"
   },
   "dependencies": {
+    "@effect/experimental": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/platform-node": "catalog:",
+    "@effect/sql": "catalog:",
+    "@effect/sql-sqlite-node": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {

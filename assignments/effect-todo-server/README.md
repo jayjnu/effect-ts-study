@@ -141,3 +141,31 @@ RPC를 선택했다면 같은 흐름을 실제 서버에 호출하는 client scr
 
 audit log는 별도 조회 API로 노출하지 않아도 된다.
 대신 test, DB query script, 또는 README 재현 절차로 successful mutation의 Todo 변경과 `audit_logs` insert가 같은 transaction 안에서 함께 성공/실패함을 보여준다.
+
+## 구현 메모
+
+- transport: HTTP (`@effect/platform` `HttpRouter` + `@effect/platform-node` `NodeHttpServer`).
+- DB: SQLite via `@effect/sql` + `@effect/sql-sqlite-node` (`better-sqlite3`).
+  - `disableWAL: true` — 일부 filesystem(iCloud 동기화 디렉토리 등)에서 WAL이 disk I/O error를 낸다.
+- transaction: `Transaction` service가 `SqlClient.withTransaction`에 위임. program은 DB client를 모른다.
+- port: `PORT` 환경변수(기본 3000). `PORT=3001 pnpm dev`.
+
+### 실행 및 curl 재현
+
+```bash
+pnpm dev                       # PORT=3001 pnpm dev 로 포트 변경 가능
+curl -i -X POST http://127.0.0.1:3000/todos \
+  -H 'content-type: application/json' -H 'x-request-id: req-create-1' \
+  -d '{"title":"learn Effect server"}'
+curl -i http://127.0.0.1:3000/todos -H 'x-request-id: req-list-1'
+curl -i -X POST http://127.0.0.1:3000/todos/<id>/complete -H 'x-request-id: req-complete-1'
+curl -i -X DELETE http://127.0.0.1:3000/todos/<id> -H 'x-request-id: req-delete-1'
+```
+
+### transaction 보장 검증
+
+`test/todo.test.ts`가 핵심 보장을 검증한다.
+
+- `createTodo writes todo and audit log in one transaction`: 성공 mutation마다 `todos`와 `audit_logs`가 함께 남는다.
+- `audit log insert failure rolls back todo creation`: 실패하는 AuditLog를 주입하면 `createTodo`가 `StorageError`로 실패하고 todo 변경도 rollback된다.
+- expected failure(`TodoNotFound`, `TodoAlreadyCompleted`)는 typed error channel로 흐른다.
