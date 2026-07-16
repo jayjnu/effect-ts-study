@@ -47,6 +47,31 @@ importers:
 
   .: {}
 
+  assignments/effect-pipeline-runner:
+    dependencies:
+      effect:
+        specifier: 'catalog:'
+        version: 3.21.4
+    devDependencies:
+      '@effect/vitest':
+        specifier: 'catalog:'
+        version: 0.29.0(effect@3.21.4)(vitest@3.2.6(@types/node@26.1.0)(tsx@4.22.4)(yaml@2.9.0))
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.1.0
+      eslint:
+        specifier: 'catalog:'
+        version: 10.6.0
+      eslint-config-effect:
+        specifier: workspace:*
+        version: link:../../packages/eslint-config-effect
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.6(@types/node@26.1.0)(tsx@4.22.4)(yaml@2.9.0)
+
   assignments/effect-todo-cli:
     dependencies:
       '@effect/cli':

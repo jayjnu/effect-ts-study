@@ -3,8 +3,8 @@
   "private": true,
   "packageManager": "pnpm@10.8.1",
   "scripts": {
-    "lint": "pnpm --filter effect-todo-cli lint && pnpm --filter effect-todo-server lint",
-    "typecheck": "pnpm --filter effect-todo-cli typecheck && pnpm --filter effect-todo-server typecheck",
-    "test": "pnpm --filter effect-todo-cli test && pnpm --filter effect-todo-server test"
+    "lint": "pnpm --filter effect-todo-cli lint && pnpm --filter effect-todo-server lint && pnpm --filter effect-pipeline-runner lint",
+    "typecheck": "pnpm --filter effect-todo-cli typecheck && pnpm --filter effect-todo-server typecheck && pnpm --filter effect-pipeline-runner typecheck",
+    "test": "pnpm --filter effect-todo-cli test && pnpm --filter effect-todo-server test && pnpm --filter effect-pipeline-runner test"
   }
 }
