@@ -1,6 +1,10 @@
 import { expect, it } from "@effect/vitest"
-import { Duration, Effect, Ref, TestClock } from "effect"
-import { CommandFailed } from "../src/model/job-error"
+import { Duration, Effect, Exit, Fiber, Ref, TestClock } from "effect"
+import {
+  CommandFailed,
+  JobTimedOut,
+  TransientCommandError
+} from "../src/model/job-error"
 import { runPipeline } from "../src/execution/pipeline-execution"
 import type { Job, PipelinePolicy, Stage } from "../src/model"
 
@@ -13,12 +17,14 @@ const makeJob = (job: {
   readonly run: Job["run"]
   readonly cleanup: Job["cleanup"]
   readonly critical?: boolean
+  readonly maxRetries?: number
+  readonly timeout?: Duration.Duration
 }): Job => ({
   id: job.id,
   policy: {
     critical: job.critical ?? false,
-    maxRetries: 0,
-    timeout: Duration.seconds(5)
+    maxRetries: job.maxRetries ?? 0,
+    timeout: job.timeout ?? Duration.seconds(5)
   },
   run: job.run,
   cleanup: job.cleanup
@@ -184,4 +190,168 @@ it.effect("skips later stages after a critical failure", () =>
       ]
     })
     expect(yield* Ref.get(deployCleanups)).toBe(0)
+  }))
+
+it.effect("continues after exhausted transient retries and reports warnings", () =>
+  Effect.gen(function* () {
+    const attempts = yield* Ref.make(0)
+    const buildCleanups = yield* Ref.make(0)
+    const stages: ReadonlyArray<Stage> = [
+      {
+        name: "publish",
+        jobs: [
+          makeJob({
+            id: "publish",
+            maxRetries: 2,
+            run: Ref.updateAndGet(attempts, (count) => count + 1).pipe(
+              Effect.flatMap((attempt) =>
+                Effect.fail(
+                  new TransientCommandError({
+                    jobId: "publish",
+                    reason: `transient-${attempt}`
+                  })
+                )
+              )
+            ),
+            cleanup: Effect.void
+          })
+        ]
+      },
+      {
+        name: "build",
+        jobs: [
+          makeJob({
+            id: "build",
+            run: Effect.void,
+            cleanup: Ref.update(buildCleanups, (count) => count + 1),
+            critical: true
+          })
+        ]
+      }
+    ]
+
+    const report = yield* runPipeline(stages, defaultPolicy)
+
+    expect(report).toEqual({
+      status: "SucceededWithWarnings",
+      stages: [
+        {
+          name: "publish",
+          jobs: [
+            {
+              id: "publish",
+              status: "Failed",
+              attempts: 3,
+              error: new TransientCommandError({
+                jobId: "publish",
+                reason: "transient-3"
+              })
+            }
+          ]
+        },
+        {
+          name: "build",
+          jobs: [{ id: "build", status: "Succeeded", attempts: 1 }]
+        }
+      ]
+    })
+    expect(yield* Ref.get(attempts)).toBe(3)
+    expect(yield* Ref.get(buildCleanups)).toBe(1)
+  }))
+
+it.effect("skips later stages after a critical timeout", () =>
+  Effect.gen(function* () {
+    const buildCleanups = yield* Ref.make(0)
+    const deployCleanups = yield* Ref.make(0)
+    const stages: ReadonlyArray<Stage> = [
+      {
+        name: "build",
+        jobs: [
+          makeJob({
+            id: "build",
+            critical: true,
+            timeout: Duration.millis(500),
+            run: Effect.sleep("10 seconds"),
+            cleanup: Ref.update(buildCleanups, (count) => count + 1)
+          })
+        ]
+      },
+      {
+        name: "deploy",
+        jobs: [
+          makeJob({
+            id: "deploy",
+            run: Effect.void,
+            cleanup: Ref.update(deployCleanups, (count) => count + 1),
+            critical: true
+          })
+        ]
+      }
+    ]
+    const fiber = yield* runPipeline(stages, defaultPolicy).pipe(Effect.fork)
+
+    yield* TestClock.adjust("500 millis")
+    const report = yield* fiber
+
+    expect(report).toEqual({
+      status: "Failed",
+      stages: [
+        {
+          name: "build",
+          jobs: [
+            {
+              id: "build",
+              status: "TimedOut",
+              attempts: 1,
+              error: new JobTimedOut({
+                jobId: "build",
+                timeoutMillis: 500
+              })
+            }
+          ]
+        },
+        {
+          name: "deploy",
+          jobs: [{ id: "deploy", status: "Skipped", attempts: 0 }]
+        }
+      ]
+    })
+    expect(yield* Ref.get(buildCleanups)).toBe(1)
+    expect(yield* Ref.get(deployCleanups)).toBe(0)
+  }))
+
+it.effect("interrupts running children when the pipeline fiber is interrupted", () =>
+  Effect.gen(function* () {
+    const active = yield* Ref.make(0)
+    const cleanups = yield* Ref.make(0)
+    const run = Ref.update(active, (count) => count + 1).pipe(
+      Effect.zipRight(Effect.sleep("10 seconds"))
+    )
+    const cleanup = Ref.update(cleanups, (count) => count + 1).pipe(
+      Effect.zipRight(Ref.update(active, (count) => count - 1))
+    )
+    const stages: ReadonlyArray<Stage> = [
+      {
+        name: "parallel",
+        jobs: ["a", "b", "c"].map((id) =>
+          makeJob({
+            id,
+            run,
+            cleanup
+          })
+        )
+      }
+    ]
+    const fiber = yield* runPipeline(stages, { maxConcurrency: 3 }).pipe(
+      Effect.fork
+    )
+
+    yield* TestClock.adjust("1 millis")
+    expect(yield* Ref.get(active)).toBe(3)
+
+    const exit = yield* Fiber.interrupt(fiber)
+
+    expect(Exit.isInterrupted(exit)).toBe(true)
+    expect(yield* Ref.get(active)).toBe(0)
+    expect(yield* Ref.get(cleanups)).toBe(3)
   }))
