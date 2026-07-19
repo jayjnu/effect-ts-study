@@ -104,6 +104,9 @@ export const makeSkippedJobResult = (job: Job): JobResult => ({
   attempts: 0
 })
 
+export const isEscalatableJobResult = (result: JobResult): boolean =>
+  result.status === "Failed" || result.status === "TimedOut"
+
 export interface StageResult {
   readonly name: string
   readonly jobs: ReadonlyArray<JobResult>

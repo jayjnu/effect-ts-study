@@ -128,3 +128,49 @@ it.effect("limits concurrent jobs using pipeline policy", () =>
       "Succeeded"
     ])
   }))
+
+it.effect("interrupts running siblings and skips unstarted jobs after a critical failure", () =>
+  Effect.gen(function* () {
+    const lintCleanups = yield* Ref.make(0)
+    const buildCleanups = yield* Ref.make(0)
+    const failure = new CommandFailed({
+      jobId: "test",
+      reason: "unit test failed"
+    })
+    const stage: Stage = {
+      name: "checks",
+      jobs: [
+        makeJob({
+          id: "test",
+          run: Effect.sleep("100 millis").pipe(Effect.zipRight(Effect.fail(failure))),
+          cleanup: Effect.void,
+          critical: true
+        }),
+        makeJob({
+          id: "lint",
+          run: Effect.sleep("10 seconds"),
+          cleanup: Ref.update(lintCleanups, (count) => count + 1)
+        }),
+        makeJob({
+          id: "build",
+          run: Effect.void,
+          cleanup: Ref.update(buildCleanups, (count) => count + 1)
+        })
+      ]
+    }
+    const fiber = yield* runStage(stage, { maxConcurrency: 2 }).pipe(Effect.fork)
+
+    yield* TestClock.adjust("100 millis")
+    const result = yield* fiber
+
+    expect(result).toEqual({
+      name: "checks",
+      jobs: [
+        { id: "test", status: "Failed", attempts: 1, error: failure },
+        { id: "lint", status: "Interrupted", attempts: 1 },
+        { id: "build", status: "Skipped", attempts: 0 }
+      ]
+    })
+    expect(yield* Ref.get(lintCleanups)).toBe(1)
+    expect(yield* Ref.get(buildCleanups)).toBe(0)
+  }))
