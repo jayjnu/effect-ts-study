@@ -1,7 +1,7 @@
 import { expect, it } from "@effect/vitest"
 import { Duration, Effect, Ref, TestClock } from "effect"
 import { CommandFailed } from "../src/errors"
-import { runStage } from "../src/stage-execution"
+import { runStage } from "../src/execution/stage-execution"
 import type { Job, PipelinePolicy, Stage } from "../src/model"
 
 const defaultPolicy: PipelinePolicy = {

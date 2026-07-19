@@ -1,16 +1,21 @@
 import { Effect, Fiber, Option, Ref } from "effect"
 import { runJob } from "./job-execution"
+import { shouldAbortStage } from "../policy/stage-failure-policy"
 import {
-  isEscalatableJobResult,
   makeInterruptedJobResult,
   makeSkippedJobResult
-} from "./model"
-import type { Job, JobResult, PipelinePolicy, Stage, StageResult } from "./model"
+} from "../model/job-result"
+import type { Job, JobResult, PipelinePolicy, Stage, StageResult } from "../model"
 
 interface RunningJob {
   readonly index: number
   readonly job: Job
   readonly fiber: Fiber.Fiber<JobResult, never>
+}
+
+interface PendingJob {
+  readonly index: number
+  readonly job: Job
 }
 
 export const runStage = (
@@ -83,7 +88,7 @@ const runStageJob = (
 
 const waitForRunningJobs = (
   runningJobs: ReadonlyArray<RunningJob>,
-  pendingJobs: ReadonlyArray<{ readonly index: number; readonly job: Job }>,
+  pendingJobs: ReadonlyArray<PendingJob>,
   results: Ref.Ref<ReadonlyArray<Option.Option<JobResult>>>,
   started: Ref.Ref<ReadonlyArray<boolean>>
 ): Effect.Effect<void> =>
@@ -137,9 +142,6 @@ const waitForRunningJobs = (
       started
     )
   })
-
-const shouldAbortStage = (job: Job, result: JobResult): boolean =>
-  job.policy.critical && isEscalatableJobResult(result)
 
 const makeRecordedOrPendingResult = (
   job: Job,

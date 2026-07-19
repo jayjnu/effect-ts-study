@@ -1,17 +1,17 @@
 import { Effect } from "effect"
 import { runStage } from "./stage-execution"
+import { shouldStopPipeline } from "../policy/stage-failure-policy"
 import {
   isEscalatableJobResult,
   makeSkippedJobResult
-} from "./model"
+} from "../model/job-result"
 import type {
-  JobResult,
   PipelinePolicy,
   PipelineReport,
   PipelineStatus,
   Stage,
   StageResult
-} from "./model"
+} from "../model"
 
 export const runPipeline = (
   stages: ReadonlyArray<Stage>,
@@ -39,7 +39,7 @@ const runPipelineStages = (
 
     const result = yield* runStage(stage, policy)
 
-    if (shouldStopPipeline(stage, result)) {
+    if (shouldStopPipeline(stage.jobs, result.jobs)) {
       return [
         result,
         ...remainingStages.map(makeSkippedStageResult)
@@ -55,13 +55,6 @@ const makeSkippedStageResult = (stage: Stage): StageResult => ({
   name: stage.name,
   jobs: stage.jobs.map(makeSkippedJobResult)
 })
-
-const shouldStopPipeline = (stage: Stage, result: StageResult): boolean =>
-  stage.jobs.some(
-    (job, index) =>
-      job.policy.critical &&
-      isEscalatableJobResult(result.jobs[index] as JobResult)
-  )
 
 const summarizePipeline = (
   stages: ReadonlyArray<StageResult>

@@ -5,7 +5,7 @@ import {
   JobTimedOut,
   TransientCommandError
 } from "../src/errors"
-import { runJob } from "../src/job-execution"
+import { runJob } from "../src/execution/job-execution"
 import type { Job } from "../src/model"
 
 const makePolicy = (overrides: Partial<Job["policy"]> = {}): Job["policy"] => ({

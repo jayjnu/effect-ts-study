@@ -3,21 +3,20 @@ import {
   Duration,
   Effect,
   Exit,
-  Match,
   Option,
-  Predicate,
   Ref,
   Schedule
 } from "effect"
-import { JobTimedOut } from "./errors"
-import type { JobExecutionError } from "./errors"
+import { JobTimedOut } from "../errors"
+import { JobErrorPolicy } from "../policy/job-error-policy"
 import {
   makeFailedJobResult,
   makeInterruptedJobResult,
   makeSucceededJobResult,
   makeTimedOutJobResult
-} from "./model"
-import type { Job, JobResult } from "./model"
+} from "../model/job-result"
+import type { Job, JobResult } from "../model"
+import type { JobExecutionError } from "../errors"
 
 export const runJob = (job: Job): Effect.Effect<JobResult> =>
   Effect.gen(function* () {
@@ -45,17 +44,6 @@ export const runJob = (job: Job): Effect.Effect<JobResult> =>
 
     return JobExitMapper.toResult(job, finalAttempts, exit)
   })
-
-const JobErrorPolicy = {
-  isRetryable: Predicate.isTagged("TransientCommandError"),
-  toFailureStatus: Match.type<JobExecutionError>().pipe(
-    Match.tagsExhaustive({
-      TransientCommandError: () => "Failed" as const,
-      CommandFailed: () => "Failed" as const,
-      JobTimedOut: () => "TimedOut" as const
-    })
-  )
-}
 
 const JobExitMapper = {
   toResult: (
