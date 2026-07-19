@@ -1,6 +1,6 @@
 import { Schema } from "effect"
 import type { Effect } from "effect"
-import type { JobExecutionError } from "../errors"
+import type { JobExecutionError } from "./job-error"
 
 export const JobPolicySchema = Schema.Struct({
   critical: Schema.Boolean,

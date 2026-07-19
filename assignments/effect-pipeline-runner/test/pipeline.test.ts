@@ -1,6 +1,6 @@
 import { expect, it } from "@effect/vitest"
 import { Duration, Effect, Ref, TestClock } from "effect"
-import { CommandFailed } from "../src/errors"
+import { CommandFailed } from "../src/model/job-error"
 import { runPipeline } from "../src/execution/pipeline-execution"
 import type { Job, PipelinePolicy, Stage } from "../src/model"
 

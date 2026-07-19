@@ -1,4 +1,4 @@
-import type { JobExecutionError } from "../errors"
+import type { JobExecutionError } from "./job-error"
 import type { Job } from "./job"
 
 export type JobStatus =

@@ -1,5 +1,5 @@
 import { Match, Predicate } from "effect"
-import type { JobExecutionError } from "../errors"
+import type { JobExecutionError } from "../model/job-error"
 
 export const JobErrorPolicy = {
   isRetryable: Predicate.isTagged("TransientCommandError"),

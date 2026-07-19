@@ -4,7 +4,7 @@ import {
   CommandFailed,
   JobTimedOut,
   TransientCommandError
-} from "../src/errors"
+} from "../src/model/job-error"
 import { runJob } from "../src/execution/job-execution"
 import type { Job } from "../src/model"
 

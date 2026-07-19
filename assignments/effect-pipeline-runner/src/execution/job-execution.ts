@@ -7,7 +7,7 @@ import {
   Ref,
   Schedule
 } from "effect"
-import { JobTimedOut } from "../errors"
+import { JobTimedOut } from "../model/job-error"
 import { JobErrorPolicy } from "../policy/job-error-policy"
 import {
   makeFailedJobResult,
@@ -16,7 +16,7 @@ import {
   makeTimedOutJobResult
 } from "../model/job-result"
 import type { Job, JobResult } from "../model"
-import type { JobExecutionError } from "../errors"
+import type { JobExecutionError } from "../model/job-error"
 
 export const runJob = (job: Job): Effect.Effect<JobResult> =>
   Effect.gen(function* () {
